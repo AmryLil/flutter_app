@@ -127,14 +127,6 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.task), label: 'Tugas'),
         ],
       ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Action ketika FAB di klik
-        },
-        child: Icon(Icons.add),
-        backgroundColor: Colors.teal,
-      ),
     );
   }
 }

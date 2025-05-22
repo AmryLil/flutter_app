@@ -1,12 +1,11 @@
+// lib/services/api_service.dart
 import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import '../models/product_model.dart';
 
 class ApiService {
-  // Replace with your API base URL - GUNAKAN URL API ANDA YANG BENAR DI SINI
-  final String baseUrl =
-      'http://127.0.0.1:8000/api'; // Untuk emulator Android ke localhost
+  final String baseUrl = 'http://127.0.0.1:8000/api';
 
   // Get all products
   Future<List<Product>> getProducts() async {
@@ -18,8 +17,6 @@ class ApiService {
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
-              // Add your auth token here if needed
-              // 'Authorization': 'Bearer $token',
             },
           )
           .timeout(const Duration(seconds: 15));
@@ -32,9 +29,7 @@ class ApiService {
         final List<dynamic> productsJson = data['data'];
         return productsJson.map((json) => Product.fromJson(json)).toList();
       } else {
-        throw Exception(
-          'Failed to load products: ${response.statusCode} - ${response.body}',
-        );
+        throw Exception('Failed to load products: ${response.statusCode}');
       }
     } catch (e) {
       print('Error getting products: $e');
@@ -42,7 +37,7 @@ class ApiService {
     }
   }
 
-  // Get a specific product by ID
+  // Get product by ID
   Future<Product> getProduct(int id) async {
     try {
       print('Memulai request ke $baseUrl/products/$id');
@@ -63,9 +58,7 @@ class ApiService {
         final Map<String, dynamic> data = json.decode(response.body);
         return Product.fromJson(data['data']);
       } else {
-        throw Exception(
-          'Failed to load product: ${response.statusCode} - ${response.body}',
-        );
+        throw Exception('Failed to load product: ${response.statusCode}');
       }
     } catch (e) {
       print('Error getting product: $e');
@@ -73,13 +66,11 @@ class ApiService {
     }
   }
 
-  // Create a new product
+  // Create product
   Future<Product> createProduct(Product product) async {
     try {
       print('Memulai request create ke $baseUrl/products');
-      print(
-        'Request body: ${json.encode({'name': product.name, 'description': product.description, 'price': product.price})}',
-      );
+      print('Request body: ${json.encode(product.toJson())}');
 
       final response = await http
           .post(
@@ -88,11 +79,7 @@ class ApiService {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
             },
-            body: json.encode({
-              'name': product.name,
-              'description': product.description,
-              'price': product.price,
-            }),
+            body: json.encode(product.toJson()),
           )
           .timeout(const Duration(seconds: 15));
 
@@ -103,9 +90,7 @@ class ApiService {
         final Map<String, dynamic> data = json.decode(response.body);
         return Product.fromJson(data['data']);
       } else {
-        throw Exception(
-          'Failed to create product: ${response.statusCode} - ${response.body}',
-        );
+        throw Exception('Failed to create product: ${response.statusCode}');
       }
     } catch (e) {
       print('Error creating product: $e');
@@ -113,13 +98,11 @@ class ApiService {
     }
   }
 
-  // Update an existing product
+  // Update product
   Future<Product> updateProduct(Product product) async {
     try {
       print('Memulai request update ke $baseUrl/products/${product.id}');
-      print(
-        'Request body: ${json.encode({'name': product.name, 'description': product.description, 'price': product.price})}',
-      );
+      print('Request body: ${json.encode(product.toJson())}');
 
       final response = await http
           .put(
@@ -128,11 +111,7 @@ class ApiService {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
             },
-            body: json.encode({
-              'name': product.name,
-              'description': product.description,
-              'price': product.price,
-            }),
+            body: json.encode(product.toJson()),
           )
           .timeout(const Duration(seconds: 15));
 
@@ -143,9 +122,7 @@ class ApiService {
         final Map<String, dynamic> data = json.decode(response.body);
         return Product.fromJson(data['data']);
       } else {
-        throw Exception(
-          'Failed to update product: ${response.statusCode} - ${response.body}',
-        );
+        throw Exception('Failed to update product: ${response.statusCode}');
       }
     } catch (e) {
       print('Error updating product: $e');
@@ -153,7 +130,7 @@ class ApiService {
     }
   }
 
-  // Delete a product
+  // Delete product
   Future<bool> deleteProduct(int id) async {
     try {
       print('Memulai request delete ke $baseUrl/products/$id');
@@ -173,9 +150,7 @@ class ApiService {
       if (response.statusCode == 200) {
         return true;
       } else {
-        throw Exception(
-          'Failed to delete product: ${response.statusCode} - ${response.body}',
-        );
+        throw Exception('Failed to delete product: ${response.statusCode}');
       }
     } catch (e) {
       print('Error deleting product: $e');

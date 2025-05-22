@@ -17,29 +17,41 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
 
-  late TextEditingController _nameController;
+  late TextEditingController _kodeBarangController;
+  late TextEditingController _namaBarangController;
   late TextEditingController _descriptionController;
-  late TextEditingController _priceController;
+  late TextEditingController _hargaController;
+  late TextEditingController _diskonController;
 
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.product?.name ?? '');
+    _kodeBarangController = TextEditingController(
+      text: widget.product?.kodeBarang ?? '',
+    );
+    _namaBarangController = TextEditingController(
+      text: widget.product?.namaBarang ?? '',
+    );
     _descriptionController = TextEditingController(
       text: widget.product?.description ?? '',
     );
-    _priceController = TextEditingController(
-      text: widget.product != null ? widget.product!.price.toString() : '',
+    _hargaController = TextEditingController(
+      text: widget.product != null ? widget.product!.harga.toString() : '',
+    );
+    _diskonController = TextEditingController(
+      text: widget.product != null ? widget.product!.diskon.toString() : '0',
     );
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _kodeBarangController.dispose();
+    _namaBarangController.dispose();
     _descriptionController.dispose();
-    _priceController.dispose();
+    _hargaController.dispose();
+    _diskonController.dispose();
     super.dispose();
   }
 
@@ -53,17 +65,21 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     });
 
     try {
-      final name = _nameController.text;
+      final kodeBarang = _kodeBarangController.text;
+      final namaBarang = _namaBarangController.text;
       final description = _descriptionController.text;
-      final price = double.parse(_priceController.text);
+      final harga = double.parse(_hargaController.text);
+      final diskon = int.parse(_diskonController.text);
 
       if (widget.product == null) {
         // Creating a new product
         final newProduct = Product(
           id: 0, // Temporary ID, will be replaced by the API
-          name: name,
+          kodeBarang: kodeBarang,
+          namaBarang: namaBarang,
           description: description,
-          price: price,
+          harga: harga,
+          diskon: diskon,
           createdAt: DateTime.now(), // Temporary, will be set by the API
         );
 
@@ -78,9 +94,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         // Updating existing product
         final updatedProduct = Product(
           id: widget.product!.id,
-          name: name,
+          kodeBarang: kodeBarang,
+          namaBarang: namaBarang,
           description: description,
-          price: price,
+          harga: harga,
+          diskon: diskon,
           createdAt: widget.product!.createdAt,
         );
 
@@ -126,14 +144,30 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TextFormField(
-                        controller: _nameController,
+                        controller: _kodeBarangController,
                         decoration: const InputDecoration(
-                          labelText: 'Nama Produk',
+                          labelText: 'Kode Barang',
                           border: OutlineInputBorder(),
+                          hintText: 'Masukkan kode barang',
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Nama produk wajib diisi';
+                            return 'Kode barang wajib diisi';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _namaBarangController,
+                        decoration: const InputDecoration(
+                          labelText: 'Nama Barang',
+                          border: OutlineInputBorder(),
+                          hintText: 'Masukkan nama barang',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Nama barang wajib diisi';
                           }
                           return null;
                         },
@@ -144,6 +178,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                         decoration: const InputDecoration(
                           labelText: 'Deskripsi',
                           border: OutlineInputBorder(),
+                          hintText: 'Masukkan deskripsi barang',
                         ),
                         maxLines: 4,
                         validator: (value) {
@@ -155,11 +190,12 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
-                        controller: _priceController,
+                        controller: _hargaController,
                         decoration: const InputDecoration(
                           labelText: 'Harga',
                           border: OutlineInputBorder(),
                           prefixText: 'Rp ',
+                          hintText: 'Masukkan harga barang',
                         ),
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
@@ -180,6 +216,34 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                             }
                           } catch (e) {
                             return 'Format harga tidak valid';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _diskonController,
+                        decoration: const InputDecoration(
+                          labelText: 'Diskon (%)',
+                          border: OutlineInputBorder(),
+                          hintText: 'Masukkan persentase diskon (0-100)',
+                          suffixText: '%',
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Diskon wajib diisi (masukkan 0 jika tidak ada diskon)';
+                          }
+                          try {
+                            final diskon = int.parse(value);
+                            if (diskon < 0 || diskon > 100) {
+                              return 'Diskon harus antara 0-100%';
+                            }
+                          } catch (e) {
+                            return 'Format diskon tidak valid';
                           }
                           return null;
                         },
