@@ -102,7 +102,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       if (p1.id != p2.id ||
           p1.namaBarang != p2.namaBarang ||
           p1.harga != p2.harga ||
-          p1.diskon != p2.diskon) {
+          p1.imageUrl != p2.imageUrl) {
         return false;
       }
     }
@@ -110,17 +110,86 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return true;
   }
 
-  double _getDiscountedPrice(Product product) {
-    if (product.diskon > 0) {
-      return product.harga * (100 - product.diskon) / 100;
+  // Widget untuk menampilkan gambar produk dengan error handling
+  Widget _buildProductImage(String? imageUrl, String productName) {
+    if (imageUrl == null || imageUrl.isEmpty) {
+      // Tampilkan placeholder jika tidak ada gambar
+      return Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(
+          Icons.image_not_supported,
+          size: 32,
+          color: Colors.grey,
+        ),
+      );
     }
-    return product.harga;
+
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          imageUrl,
+          width: 60,
+          height: 60,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(
+              width: 60,
+              height: 60,
+              color: Colors.grey[200],
+              child: const Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.broken_image,
+                size: 32,
+                color: Colors.grey,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _handleBuyProduct(Product product) {
+    // Handle buy product logic here
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Membeli ${product.namaBarang}')));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Produk')),
+      appBar: AppBar(
+        title: const Text('Daftar Produk'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        elevation: 2,
+      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -129,8 +198,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const Icon(Icons.error, size: 64, color: Colors.red),
+                    const SizedBox(height: 16),
                     const Text('Terjadi kesalahan:'),
                     Text('$_errorMessage'),
+                    const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: _loadProducts,
                       child: const Text('Coba Lagi'),
@@ -145,7 +217,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 builder: (context, snapshot) {
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
-                      child: Text('Tidak ada produk tersedia'),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.inventory_2, size: 64, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text('Tidak ada produk tersedia'),
+                        ],
+                      ),
                     );
                   }
 
@@ -154,114 +233,26 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     onRefresh: () async {
                       await _loadProducts();
                     },
-                    child: ListView.builder(
+                    child: GridView.builder(
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio:
+                                0.75, // Adjusted since no discount badge
+                          ),
                       itemCount: products.length,
                       itemBuilder: (context, index) {
                         final product = products[index];
-                        final discountedPrice = _getDiscountedPrice(product);
 
                         return Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: ListTile(
-                            title: Text(product.namaBarang),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Kode: ${product.kodeBarang}',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    if (product.diskon > 0) ...[
-                                      Text(
-                                        'Rp ${product.harga.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          decoration:
-                                              TextDecoration.lineThrough,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Rp ${discountedPrice.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.green,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 6,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red,
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          '${product.diskon}%',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ] else ...[
-                                      Text(
-                                        'Rp ${product.harga.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ],
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () async {
-                                    final result = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => ProductFormScreen(
-                                              product: product,
-                                            ),
-                                      ),
-                                    );
-                                    if (result == true) {
-                                      await _loadProducts();
-                                    }
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  ),
-                                  onPressed: () {
-                                    _showDeleteConfirmation(product);
-                                  },
-                                ),
-                              ],
-                            ),
+                          child: InkWell(
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -273,6 +264,118 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                 ),
                               );
                             },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Header dengan gambar dan menu
+                                  Row(
+                                    children: [
+                                      // Gambar produk
+                                      _buildProductImage(
+                                        product.imageUrl,
+                                        product.namaBarang,
+                                      ),
+                                      const Spacer(),
+                                      // Menu popup
+                                      PopupMenuButton<String>(
+                                        onSelected: (value) async {
+                                          if (value == 'edit') {
+                                            final result = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) =>
+                                                        ProductFormScreen(
+                                                          product: product,
+                                                        ),
+                                              ),
+                                            );
+                                            if (result == true) {
+                                              await _loadProducts();
+                                            }
+                                          } else if (value == 'delete') {
+                                            _showDeleteConfirmation(product);
+                                          }
+                                        },
+                                        itemBuilder:
+                                            (BuildContext context) => [
+                                              const PopupMenuItem<String>(
+                                                value: 'edit',
+                                                child: Row(
+                                                  children: [
+                                                    Icon(Icons.edit, size: 16),
+                                                    SizedBox(width: 8),
+                                                    Text('Edit'),
+                                                  ],
+                                                ),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: 'delete',
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.delete,
+                                                      size: 16,
+                                                      color: Colors.red,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text(
+                                                      'Hapus',
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+
+                                  // Nama produk
+                                  Text(
+                                    product.namaBarang,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+
+                                  // Kode produk
+                                  Text(
+                                    'Kode: ${product.kodeBarang}',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+
+                                  const Spacer(),
+
+                                  // Harga
+                                  Text(
+                                    'Rp ${product.harga.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+
+                                  // Tombol beli
+                                ],
+                              ),
+                            ),
                           ),
                         );
                       },
@@ -292,7 +395,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         },
         tooltip: 'Tambah Produk',
         backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, color: Colors.amber),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

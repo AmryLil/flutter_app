@@ -20,6 +20,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   late TextEditingController _kodeBarangController;
   late TextEditingController _namaBarangController;
   late TextEditingController _descriptionController;
+  late TextEditingController _jumlahController; // Added jumlah controller
   late TextEditingController _hargaController;
   late TextEditingController _diskonController;
 
@@ -37,6 +38,9 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _descriptionController = TextEditingController(
       text: widget.product?.description ?? '',
     );
+    _jumlahController = TextEditingController(
+      text: widget.product != null ? widget.product!.jumlah.toString() : '0',
+    );
     _hargaController = TextEditingController(
       text: widget.product != null ? widget.product!.harga.toString() : '',
     );
@@ -50,6 +54,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _kodeBarangController.dispose();
     _namaBarangController.dispose();
     _descriptionController.dispose();
+    _jumlahController.dispose(); // Added dispose for jumlah controller
     _hargaController.dispose();
     _diskonController.dispose();
     super.dispose();
@@ -68,6 +73,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       final kodeBarang = _kodeBarangController.text;
       final namaBarang = _namaBarangController.text;
       final description = _descriptionController.text;
+      final jumlah = int.parse(_jumlahController.text); // Added jumlah parsing
       final harga = double.parse(_hargaController.text);
       final diskon = int.parse(_diskonController.text);
 
@@ -78,9 +84,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           kodeBarang: kodeBarang,
           namaBarang: namaBarang,
           description: description,
+          jumlah: jumlah, // Added jumlah
           harga: harga,
           diskon: diskon,
-          createdAt: DateTime.now(), // Temporary, will be set by the API
+          imageUrl: "", // Empty string as requested
         );
 
         await _apiService.createProduct(newProduct);
@@ -97,9 +104,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           kodeBarang: kodeBarang,
           namaBarang: namaBarang,
           description: description,
+          jumlah: jumlah, // Added jumlah
           harga: harga,
           diskon: diskon,
-          createdAt: widget.product!.createdAt,
+          imageUrl: "", // Preserve existing imageUrl or use empty string
         );
 
         await _apiService.updateProduct(updatedProduct);
@@ -184,6 +192,34 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Deskripsi wajib diisi';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      // Added Jumlah field
+                      TextFormField(
+                        controller: _jumlahController,
+                        decoration: const InputDecoration(
+                          labelText: 'Jumlah Stok',
+                          border: OutlineInputBorder(),
+                          hintText: 'Masukkan jumlah stok barang',
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Jumlah stok wajib diisi';
+                          }
+                          try {
+                            final jumlah = int.parse(value);
+                            if (jumlah < 0) {
+                              return 'Jumlah stok tidak boleh negatif';
+                            }
+                          } catch (e) {
+                            return 'Format jumlah tidak valid';
                           }
                           return null;
                         },

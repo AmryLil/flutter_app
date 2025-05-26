@@ -70,7 +70,9 @@ class ApiService {
   Future<Product> createProduct(Product product) async {
     try {
       print('Memulai request create ke $baseUrl/products');
-      print('Request body: ${json.encode(product.toJson())}');
+      // Use toJsonForCreate() to exclude id and created_at
+      final requestBody = product.toJsonForCreate();
+      print('Request body: ${json.encode(requestBody)}');
 
       final response = await http
           .post(
@@ -79,7 +81,7 @@ class ApiService {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
             },
-            body: json.encode(product.toJson()),
+            body: json.encode(requestBody),
           )
           .timeout(const Duration(seconds: 15));
 
@@ -90,7 +92,11 @@ class ApiService {
         final Map<String, dynamic> data = json.decode(response.body);
         return Product.fromJson(data['data']);
       } else {
-        throw Exception('Failed to create product: ${response.statusCode}');
+        final errorData = json.decode(response.body);
+        print('Error details: $errorData');
+        throw Exception(
+          'Failed to create product: ${response.statusCode} - ${errorData['message'] ?? 'Unknown error'}',
+        );
       }
     } catch (e) {
       print('Error creating product: $e');
@@ -102,7 +108,9 @@ class ApiService {
   Future<Product> updateProduct(Product product) async {
     try {
       print('Memulai request update ke $baseUrl/products/${product.id}');
-      print('Request body: ${json.encode(product.toJson())}');
+      // Use toJsonForUpdate() to exclude created_at but include proper fields
+      final requestBody = product.toJsonForUpdate();
+      print('Request body: ${json.encode(requestBody)}');
 
       final response = await http
           .put(
@@ -111,7 +119,7 @@ class ApiService {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
             },
-            body: json.encode(product.toJson()),
+            body: json.encode(requestBody),
           )
           .timeout(const Duration(seconds: 15));
 
@@ -122,7 +130,11 @@ class ApiService {
         final Map<String, dynamic> data = json.decode(response.body);
         return Product.fromJson(data['data']);
       } else {
-        throw Exception('Failed to update product: ${response.statusCode}');
+        final errorData = json.decode(response.body);
+        print('Error details: $errorData');
+        throw Exception(
+          'Failed to update product: ${response.statusCode} - ${errorData['message'] ?? 'Unknown error'}',
+        );
       }
     } catch (e) {
       print('Error updating product: $e');

@@ -4,18 +4,20 @@ class Product {
   final String kodeBarang;
   final String namaBarang;
   final String description;
+  final int jumlah; // Added field for backend compatibility
   final double harga;
   final int diskon;
-  final DateTime createdAt;
+  final String? imageUrl;
 
   Product({
     required this.id,
     required this.kodeBarang,
     required this.namaBarang,
     required this.description,
+    required this.jumlah, // Added required jumlah
     required this.harga,
     required this.diskon,
-    required this.createdAt,
+    this.imageUrl,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -24,9 +26,11 @@ class Product {
       kodeBarang: json['kode_barang'] ?? '',
       namaBarang: json['nama_barang'] ?? '',
       description: json['deskripsi'] ?? '',
+      jumlah:
+          int.tryParse(json['jumlah'].toString()) ?? 0, // Added jumlah parsing
       harga: double.tryParse(json['harga'].toString()) ?? 0.0,
       diskon: int.tryParse(json['diskon'].toString()) ?? 0,
-      createdAt: DateTime.parse(json['created_at']),
+      imageUrl: "", // Changed from 'imageUrl' to 'image_url'
     );
   }
 
@@ -36,9 +40,34 @@ class Product {
       'kode_barang': kodeBarang,
       'nama_barang': namaBarang,
       'deskripsi': description,
+      'jumlah': jumlah, // Added jumlah
       'harga': harga,
       'diskon': diskon,
-      'created_at': createdAt.toIso8601String(),
+      'image_url': imageUrl, // Changed from 'imageUrl' to 'image_url'
+    };
+  }
+
+  // Method specifically for creating new products (excludes id and created_at)
+  Map<String, dynamic> toJsonForCreate() {
+    return {
+      'kode_barang': kodeBarang,
+      'nama_barang': namaBarang,
+      'jumlah': jumlah, // Added jumlah
+      'harga': harga,
+      'diskon': diskon,
+      'image_url': imageUrl ?? '', // Changed from 'imageUrl' to 'image_url'
+    };
+  }
+
+  // Method specifically for updating products (excludes created_at but includes id)
+  Map<String, dynamic> toJsonForUpdate() {
+    return {
+      'kode_barang': kodeBarang,
+      'nama_barang': namaBarang,
+      'jumlah': jumlah, // Added jumlah
+      'harga': harga,
+      'diskon': diskon,
+      'image_url': imageUrl ?? '', // Changed from 'imageUrl' to 'image_url'
     };
   }
 }
