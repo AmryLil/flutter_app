@@ -1,8 +1,7 @@
 import 'package:flutter_project/models/product_model.dart';
 
 class Transaction {
-  final int id;
-  final int productId;
+  final String productId;
   final int jumlah;
   final double hargaSatuan;
   final int diskon;
@@ -12,7 +11,6 @@ class Transaction {
   final Product? product;
 
   Transaction({
-    required this.id,
     required this.productId,
     required this.jumlah,
     required this.hargaSatuan,
@@ -25,7 +23,6 @@ class Transaction {
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
-      id: json['id'],
       productId: json['product_id'],
       jumlah: json['jumlah'],
       hargaSatuan: double.tryParse(json['harga_satuan'].toString()) ?? 0.0,

@@ -7,7 +7,7 @@ import '../../services/transaction_service.dart';
 import 'product_form.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  final int productId;
+  final String productId;
 
   const ProductDetailScreen({Key? key, required this.productId})
     : super(key: key);
@@ -431,8 +431,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     try {
       // Create transaction object with dynamic discount
       final transaction = Transaction(
-        id: 0, // Will be set by API
-        productId: product.id,
+        productId: product.kodeBarang,
         jumlah: _quantity,
         hargaSatuan: hargaSatuan,
         diskon: diskonPersen.toInt(), // Use calculated discount
@@ -471,7 +470,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('ID Transaksi: #${transaction.id}'),
               const SizedBox(height: 4),
               Text('Produk: ${product.namaBarang}'),
               Text('Jumlah: ${transaction.jumlah}'),

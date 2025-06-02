@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/screens/product/product_list.dart';
+import 'package:flutter_project/screens/product/product_tabel.dart';
 import 'package:flutter_project/screens/profile.dart';
 import 'package:flutter_project/screens/search.dart';
 import 'package:flutter_project/screens/tugas2.dart';
@@ -33,16 +34,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _getPage(int index) {
     switch (index) {
       case 0:
-        return Center(child: Text('Home Page', style: TextStyle(fontSize: 24)));
+        return ProductListScreen();
       case 1:
         return PencarianMahasiswaPage();
 
       case 2:
         return ProfilePage();
       case 3:
-        return ProductListScreen();
+        return ProductTableScreen();
       default:
-        return Center(child: Text('Home Page', style: TextStyle(fontSize: 24)));
+        return ProductListScreen();
     }
   }
 
@@ -103,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              title: Text('Tugas'),
+              title: Text('CRUD'),
               leading: Icon(Icons.task),
               onTap: () {
                 setState(() {
@@ -124,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(icon: Icon(Icons.task), label: 'Tugas'),
+          BottomNavigationBarItem(icon: Icon(Icons.task), label: 'CRUD'),
         ],
       ),
     );

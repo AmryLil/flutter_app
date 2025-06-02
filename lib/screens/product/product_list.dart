@@ -1,4 +1,5 @@
 // lib/screens/product_list_screen.dart
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../models/product_model.dart';
@@ -99,7 +100,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       Product p1 = list1[i];
       Product p2 = list2[i];
 
-      if (p1.id != p2.id ||
+      if (p1.kodeBarang != p2.kodeBarang ||
           p1.namaBarang != p2.namaBarang ||
           p1.harga != p2.harga ||
           p1.imageUrl != p2.imageUrl) {
@@ -115,57 +116,72 @@ class _ProductListScreenState extends State<ProductListScreen> {
     if (imageUrl == null || imageUrl.isEmpty) {
       // Tampilkan placeholder jika tidak ada gambar
       return Container(
-        width: 60,
-        height: 60,
+        height: 140,
         decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(8),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.grey[100]!, Colors.grey[200]!],
+          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        child: const Icon(
-          Icons.image_not_supported,
-          size: 32,
-          color: Colors.grey,
+        child: const Center(
+          child: Icon(
+            Icons.image_not_supported_outlined,
+            size: 48,
+            color: Colors.grey,
+          ),
         ),
       );
     }
 
     return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
+      height: 140,
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         child: Image.network(
           imageUrl,
-          width: 60,
-          height: 60,
+          height: 140,
+          width: double.infinity,
           fit: BoxFit.cover,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
             return Container(
-              width: 60,
-              height: 60,
-              color: Colors.grey[200],
+              height: 140,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.grey[100]!, Colors.grey[200]!],
+                ),
+              ),
               child: const Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.indigo),
+                ),
               ),
             );
           },
           errorBuilder: (context, error, stackTrace) {
             return Container(
-              width: 60,
-              height: 60,
+              height: 140,
               decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.red[50]!, Colors.red[100]!],
+                ),
               ),
-              child: const Icon(
-                Icons.broken_image,
-                size: 32,
-                color: Colors.grey,
+              child: const Center(
+                child: Icon(
+                  Icons.broken_image_outlined,
+                  size: 48,
+                  color: Colors.red,
+                ),
               ),
             );
           },
@@ -175,54 +191,141 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   void _handleBuyProduct(Product product) {
-    // Handle buy product logic here
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Membeli ${product.namaBarang}')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Membeli ${product.namaBarang}'),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Daftar Produk'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        elevation: 2,
+        title: const Text(
+          'Daftar Produk',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.indigo.shade800,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.indigo.shade200,
+                  Colors.indigo.shade100,
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
       body:
           _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.indigo),
+                ),
+              )
               : _errorMessage != null
               ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error, size: 64, color: Colors.red),
-                    const SizedBox(height: 16),
-                    const Text('Terjadi kesalahan:'),
-                    Text('$_errorMessage'),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.red[50],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red[400],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Terjadi kesalahan',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '$_errorMessage',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
                       onPressed: _loadProducts,
-                      child: const Text('Coba Lagi'),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Coba Lagi'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.indigo,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               )
               : StreamBuilder<List<Product>>(
-                // Menggunakan stream untuk update realtime
                 stream: productStream,
                 initialData: _products,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.inventory_2, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text('Tidak ada produk tersedia'),
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.inventory_2_outlined,
+                              size: 64,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          const Text(
+                            'Tidak ada produk tersedia',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Tambahkan produk baru dengan menekan tombol +',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
                         ],
                       ),
                     );
@@ -233,146 +336,109 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     onRefresh: () async {
                       await _loadProducts();
                     },
+                    color: Colors.indigo,
                     child: GridView.builder(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio:
-                                0.75, // Adjusted since no discount badge
+                            mainAxisSpacing: 20,
+                            childAspectRatio: 0.7,
                           ),
                       itemCount: products.length,
                       itemBuilder: (context, index) {
                         final product = products[index];
 
-                        return Card(
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.indigo.withOpacity(0.08),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                                spreadRadius: 0,
+                              ),
+                            ],
                           ),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => ProductDetailScreen(
-                                        productId: product.id,
-                                      ),
-                                ),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => ProductDetailScreen(
+                                          productId: product.kodeBarang,
+                                        ),
+                                  ),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(20),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Header dengan gambar dan menu
-                                  Row(
+                                  // Image section with menu
+                                  Stack(
                                     children: [
-                                      // Gambar produk
                                       _buildProductImage(
                                         product.imageUrl,
                                         product.namaBarang,
                                       ),
-                                      const Spacer(),
-                                      // Menu popup
-                                      PopupMenuButton<String>(
-                                        onSelected: (value) async {
-                                          if (value == 'edit') {
-                                            final result = await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder:
-                                                    (context) =>
-                                                        ProductFormScreen(
-                                                          product: product,
-                                                        ),
-                                              ),
-                                            );
-                                            if (result == true) {
-                                              await _loadProducts();
-                                            }
-                                          } else if (value == 'delete') {
-                                            _showDeleteConfirmation(product);
-                                          }
-                                        },
-                                        itemBuilder:
-                                            (BuildContext context) => [
-                                              const PopupMenuItem<String>(
-                                                value: 'edit',
-                                                child: Row(
-                                                  children: [
-                                                    Icon(Icons.edit, size: 16),
-                                                    SizedBox(width: 8),
-                                                    Text('Edit'),
-                                                  ],
-                                                ),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: 'delete',
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.delete,
-                                                      size: 16,
-                                                      color: Colors.red,
-                                                    ),
-                                                    SizedBox(width: 8),
-                                                    Text(
-                                                      'Hapus',
-                                                      style: TextStyle(
-                                                        color: Colors.red,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                      ),
                                     ],
                                   ),
-                                  const SizedBox(height: 12),
+                                  // Content section
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // Product name
+                                          Text(
+                                            product.namaBarang,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.black87,
+                                              height: 1.2,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          // Product code
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.indigo[50],
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          // Price
+                                          Text(
+                                            'Rp ${product.harga.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
 
-                                  // Nama produk
-                                  Text(
-                                    product.namaBarang,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                          // Buy button
+                                        ],
+                                      ),
                                     ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 4),
-
-                                  // Kode produk
-                                  Text(
-                                    'Kode: ${product.kodeBarang}',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-
-                                  const Spacer(),
-
-                                  // Harga
-                                  Text(
-                                    'Rp ${product.harga.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-
-                                  // Tombol beli
                                 ],
                               ),
                             ),
@@ -383,60 +449,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   );
                 },
               ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ProductFormScreen()),
-          );
-          if (result == true) {
-            await _loadProducts();
-          }
-        },
-        tooltip: 'Tambah Produk',
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    );
-  }
-
-  void _showDeleteConfirmation(Product product) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Hapus Produk'),
-          content: Text(
-            'Apakah Anda yakin ingin menghapus "${product.namaBarang}"?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                try {
-                  await _apiService.deleteProduct(product.id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Produk berhasil dihapus')),
-                  );
-                  await _loadProducts();
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal menghapus: $e')),
-                  );
-                }
-              },
-              child: const Text('Hapus', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
     );
   }
 }

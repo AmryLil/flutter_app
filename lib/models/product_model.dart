@@ -1,6 +1,5 @@
 // lib/models/product_model.dart
 class Product {
-  final int id;
   final String kodeBarang;
   final String namaBarang;
   final String description;
@@ -10,7 +9,6 @@ class Product {
   final String? imageUrl;
 
   Product({
-    required this.id,
     required this.kodeBarang,
     required this.namaBarang,
     required this.description,
@@ -22,7 +20,6 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'],
       kodeBarang: json['kode_barang'] ?? '',
       namaBarang: json['nama_barang'] ?? '',
       description: json['deskripsi'] ?? '',
@@ -30,13 +27,12 @@ class Product {
           int.tryParse(json['jumlah'].toString()) ?? 0, // Added jumlah parsing
       harga: double.tryParse(json['harga'].toString()) ?? 0.0,
       diskon: int.tryParse(json['diskon'].toString()) ?? 0,
-      imageUrl: "", // Changed from 'imageUrl' to 'image_url'
+      imageUrl: json['image_url'] ?? null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'kode_barang': kodeBarang,
       'nama_barang': namaBarang,
       'deskripsi': description,
@@ -52,6 +48,7 @@ class Product {
     return {
       'kode_barang': kodeBarang,
       'nama_barang': namaBarang,
+      'deskripsi': description, // Added missing description field
       'jumlah': jumlah, // Added jumlah
       'harga': harga,
       'diskon': diskon,
@@ -64,10 +61,61 @@ class Product {
     return {
       'kode_barang': kodeBarang,
       'nama_barang': namaBarang,
+      'deskripsi': description, // Added missing description field
       'jumlah': jumlah, // Added jumlah
       'harga': harga,
       'diskon': diskon,
       'image_url': imageUrl ?? '', // Changed from 'imageUrl' to 'image_url'
     };
+  }
+
+  // Method copyWith untuk membuat copy dengan perubahan tertentu
+  Product copyWith({
+    String? kodeBarang,
+    String? namaBarang,
+    String? description,
+    int? jumlah,
+    double? harga,
+    int? diskon,
+    String? imageUrl,
+  }) {
+    return Product(
+      kodeBarang: kodeBarang ?? this.kodeBarang,
+      namaBarang: namaBarang ?? this.namaBarang,
+      description: description ?? this.description,
+      jumlah: jumlah ?? this.jumlah,
+      harga: harga ?? this.harga,
+      diskon: diskon ?? this.diskon,
+      imageUrl: imageUrl ?? this.imageUrl,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'Product(kodeBarang: $kodeBarang, namaBarang: $namaBarang, description: $description, jumlah: $jumlah, harga: $harga, diskon: $diskon, imageUrl: $imageUrl)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Product &&
+        other.kodeBarang == kodeBarang &&
+        other.namaBarang == namaBarang &&
+        other.description == description &&
+        other.jumlah == jumlah &&
+        other.harga == harga &&
+        other.diskon == diskon &&
+        other.imageUrl == imageUrl;
+  }
+
+  @override
+  int get hashCode {
+    return kodeBarang.hashCode ^
+        namaBarang.hashCode ^
+        description.hashCode ^
+        jumlah.hashCode ^
+        harga.hashCode ^
+        diskon.hashCode ^
+        imageUrl.hashCode;
   }
 }

@@ -27,7 +27,7 @@ class TransactionService {
     }
   }
 
-  Future<Transaction> getTransaction(int id) async {
+  Future<Transaction> getTransaction(String id) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/transaksis/$id'),
@@ -66,7 +66,10 @@ class TransactionService {
     }
   }
 
-  Future<Transaction> updateTransaction(int id, Transaction transaction) async {
+  Future<Transaction> updateTransaction(
+    String id,
+    Transaction transaction,
+  ) async {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl/transaksis/$id'),
@@ -86,7 +89,7 @@ class TransactionService {
     }
   }
 
-  Future<void> deleteTransaction(int id) async {
+  Future<void> deleteTransaction(String id) async {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/transaksis/$id'),
